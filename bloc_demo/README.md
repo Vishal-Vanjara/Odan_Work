@@ -3,7 +3,6 @@
 In a demo I create a below this:
 
     A counter app. When you press a button:
-
     Event: Increase
     Bloc updates count
     State: New count value
@@ -12,8 +11,6 @@ In a demo I create a below this:
     ✅ Reset" for this write a read me
 
 In a demo_2 I create a below this:
-
-    What you learned in this step
     
     ✔ How to handle text input with BLoC
     ✔ How to handle multiple fields (email + password)
@@ -23,13 +20,15 @@ In a demo_2 I create a below this:
 
 
 In a demo_3 I create a below this:
-    What you learned
     
     ✔ Real API calling with http
     ✔ Loading / success / error states
     ✔ Repository-like API separation
     ✔ Clean BLoC architecture
     ✔ Using ListView with BLoC
+
+
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
