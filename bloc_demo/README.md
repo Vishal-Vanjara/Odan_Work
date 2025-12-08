@@ -27,6 +27,83 @@ In a demo_3 I create a below this:
     ✔ Clean BLoC architecture
     ✔ Using ListView with BLoC
 
+In a demo_4 I create a below this:
+
+    1️⃣ If user presses Login → BLoC sends Authenticated state
+    2️⃣ App navigates to HomePage automatically
+    3️⃣ If user presses Logout → BLoC sends Unauthenticated state
+    4️⃣ App returns to LoginPage
+
+In a demo_5 BLoC + Repository Pattern (Clean Architecture):
+
+    Without Repository:
+            UI → BLoC → API Code
+    ❌ BLoC becomes messy
+    ❌ Hard to test
+    ❌ Hard to change API later
+
+    With Repository Pattern:
+            UI → BLoC → Repository → API Service
+    ✔ BLoC becomes clean
+    ✔ Logic is separated
+    ✔ Easy to maintain
+    ✔ Easy to test
+    ✔ Can switch API/DB without changing BLoC
+
+In a demo_6 Hydrated BLoC:
+
+    Hydrated BLoC automatically saves your BLoC state in local storage.
+
+    📌 This means the app remembers the state even after closing or restarting the app.
+        No database
+        No SharedPreferences
+        No extra code
+        Hydrated BLoC does everything.
+
+    📌 Example Where It Is Used
+
+        Remember login status
+        Remember dark/light theme
+        Remember last opened screen
+        Save cart items
+        Save counter value
+        Save form data
+    
+In a demo_7 Navigation with BLoC (Pro Level Routing):
+
+    Without BLoC:
+        Every button has navigation code
+        Navigation gets messy
+        Hard to manage login flow
+        Difficult to redirect to Home when logged in
+
+    With BLoC controlling navigation:
+            App → listens to AuthBloc → shows pages automatically
+
+    This is exactly how real apps manage auth.
+
+In a demo_7 BLoC + Database (Hive):
+
+    We will store User List in Hive and manage it with BLoC.
+    ⭐ Why Hive?
+            Hive is:
+            very fast
+            no SQL required
+            perfect for beginners
+            works offline
+            perfect for BLoC architecture
+
+    🔥 What you will learn :
+            Setup Hive
+            Create Model
+            Create Hive Adapter
+            Create Repository
+            Create BLoC (Events + States)
+            Create UI to add & show users
+            Connect UI ↔️ BLoC ↔️ Hive
+
+
+
 
 
 ## Getting Started
