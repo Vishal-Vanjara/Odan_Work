@@ -82,7 +82,7 @@ In a demo_7 Navigation with BLoC (Pro Level Routing):
 
     This is exactly how real apps manage auth.
 
-In a demo_7 BLoC + Database (Hive):
+In a demo_8 BLoC + Database (Hive):
 
     We will store User List in Hive and manage it with BLoC.
     ⭐ Why Hive?
@@ -102,9 +102,16 @@ In a demo_7 BLoC + Database (Hive):
             Create UI to add & show users
             Connect UI ↔️ BLoC ↔️ Hive
 
+In a demo_9 Multi-BLoC Communication:
+    
+    It means:
+    BLoC A reacts to the state of BLoC B (or vice-versa)
 
-
-
+    Example:
+        AuthBloc → knows if user is logged in
+        UserBloc → loads user data
+        When AuthBloc says “LoginSuccess” → UserBloc should load profile
+        So BLoCs talk to each other.
 
 ## Getting Started
 
