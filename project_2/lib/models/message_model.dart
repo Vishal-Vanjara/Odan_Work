@@ -4,6 +4,7 @@ class MessageModel {
   final String text;
   final DateTime timestamp;
 
+
   MessageModel({
     required this.messageId,
     required this.senderId,

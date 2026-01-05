@@ -14,6 +14,7 @@ class _RegisterViewState extends State<RegisterView> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obsecurePassword = true;
 
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
@@ -33,9 +34,9 @@ class _RegisterViewState extends State<RegisterView> {
       // Navigate back to login after success
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
 
     setState(() => isLoading = false);
@@ -60,8 +61,7 @@ class _RegisterViewState extends State<RegisterView> {
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: "Name"),
-                validator: (value) =>
-                value!.isEmpty ? "Name required" : null,
+                validator: (value) => value!.isEmpty ? "Name required" : null,
               ),
 
               const SizedBox(height: 16),
@@ -69,18 +69,31 @@ class _RegisterViewState extends State<RegisterView> {
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: "Email"),
-                validator: (value) =>
-                value!.isEmpty ? "Email required" : null,
+                validator: (value) => value!.isEmpty ? "Email required" : null,
               ),
 
               const SizedBox(height: 16),
 
               TextFormField(
                 controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Password"),
+                obscureText: _obsecurePassword,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _obsecurePassword =!_obsecurePassword;
+                      });
+                    },
+                    icon: Icon(
+                      _obsecurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                  ),
+                ),
                 validator: (value) =>
-                value!.length < 6 ? "Min 6 characters" : null,
+                    value!.length < 6 ? "Min 6 characters" : null,
               ),
 
               const SizedBox(height: 30),

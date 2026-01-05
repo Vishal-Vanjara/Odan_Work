@@ -14,10 +14,19 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Messages'),
-        actions: const [
-          Icon(Icons.notifications_none),
-          SizedBox(width: 12),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Get.toNamed(AppRoutes.notifications);
+            },
+            icon: const Icon(Icons.notifications_none),
+          ),
         ],
+        // actions: const [
+        //   // Icon(Icons.notifications_none),
+        //   // SizedBox(width: 12),
+        //
+        // ],
       ),
 
       floatingActionButton: FloatingActionButton.extended(
@@ -82,25 +91,24 @@ class HomeView extends GetView<HomeController> {
                   final chat = controller.chats[index];
                   return ChatListItem(
                     chat: chat,
-                      onTap: () {
-                        final uid = FirebaseAuth.instance.currentUser!.uid;
+                    onTap: () {
+                      final uid = FirebaseAuth.instance.currentUser!.uid;
 
-                        // 🔥 Find the OTHER user
-                        final otherUserId = chat.participants.firstWhere(
-                              (id) => id != uid,
-                        );
+                      // 🔥 Find the OTHER user
+                      final otherUserId = chat.participants.firstWhere(
+                        (id) => id != uid,
+                      );
 
-                        Get.toNamed(
-                          AppRoutes.chat,
-                          arguments: {
-                            'chatId': chat.chatId,
-                            'friendId': otherUserId,
-                            'friendName': chat.otherUserName ?? 'User',
-                            // we’ll fix this next
-                          },
-                        );
-                      }
-
+                      Get.toNamed(
+                        AppRoutes.chat,
+                        arguments: {
+                          'chatId': chat.chatId,
+                          'friendId': otherUserId,
+                          'friendName': chat.otherUserName ?? 'User',
+                          // we’ll fix this next
+                        },
+                      );
+                    },
                   );
                 },
               );
@@ -163,10 +171,7 @@ class _FilterChip extends StatelessWidget {
   final String label;
   final bool selected;
 
-  const _FilterChip({
-    required this.label,
-    this.selected = false,
-  });
+  const _FilterChip({required this.label, this.selected = false});
 
   @override
   Widget build(BuildContext context) {

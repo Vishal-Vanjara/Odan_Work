@@ -3,6 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../routes/app_routes.dart';
+import '../utils/session_manager.dart';
+
 class ProfileController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -102,7 +105,14 @@ class ProfileController extends GetxController {
 
   /// 🚪 Sign out
   Future<void> signOut() async {
-    await _auth.signOut();
-    Get.offAllNamed('/login');
+    // await _auth.signOut();
+    // Get.offAllNamed('/login');
+    await FirebaseAuth.instance.signOut();
+
+    // 🔥 clear all GetX memory
+    SessionManager.clearSession();
+
+    // 🔥 navigate cleanly
+    Get.offAllNamed(AppRoutes.login);
   }
 }

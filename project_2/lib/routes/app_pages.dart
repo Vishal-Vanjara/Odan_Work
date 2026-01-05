@@ -8,6 +8,7 @@ import '../controllers/chat_controller.dart';
 import '../controllers/forgot_password_controller.dart';
 import '../controllers/friends_controller.dart';
 import '../controllers/main_controller.dart';
+import '../controllers/notification_controller.dart';
 import '../controllers/profile_controller.dart';
 import '../controllers/user_list_controller.dart';
 import '../views/auth/chat_view.dart';
@@ -16,6 +17,7 @@ import '../views/auth/forgot_password_view.dart';
 import '../views/auth/friend_request_view.dart';
 import '../views/auth/friends_view.dart';
 import '../views/auth/main_view.dart';
+import '../views/auth/notification_view.dart';
 import '../views/auth/profile_view.dart';
 import '../views/auth/splash_view.dart';
 import '../views/auth/login_view.dart';
@@ -61,13 +63,13 @@ class AppPages {
       name: AppRoutes.main,
       page: () => const MainView(),
       binding: BindingsBuilder(() {
-        Get.put(MainController(), permanent: true);
+        // Get.put(MainController(), permanent: true);
 
         // 🔥 TAB CONTROLLERS (CREATE ONCE)
-        Get.put(HomeController(), permanent: true);
-        Get.put(FriendsController(), permanent: true);
-        Get.put(UserListController(), permanent: true);
-        Get.put(ProfileController(), permanent: true);
+        Get.put(HomeController());
+        Get.put(FriendsController(), );
+        Get.put(UserListController(), );
+        Get.put(ProfileController(),);
       }),
     ),
 
@@ -89,6 +91,15 @@ class AppPages {
         Get.put(ChatController());
       }),
     ),
+
+    GetPage(
+      name: AppRoutes.notifications,
+      page: () => const NotificationView(),
+      binding: BindingsBuilder(() {
+        Get.put(NotificationController());
+      }),
+    ),
+
 
     // GetPage(
     //   name: AppRoutes.userList,

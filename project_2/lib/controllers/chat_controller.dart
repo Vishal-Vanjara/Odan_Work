@@ -1,56 +1,61 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../models/message_model.dart';
+import '../services/notification_service.dart';
 
 class ChatController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  // navigation args
   late String chatId;
   late String friendId;
   late String friendName;
 
+  // message state
   RxList<MessageModel> messages = <MessageModel>[].obs;
   RxBool isLoading = true.obs;
 
-  final messageController = TextEditingController();
+  // online status
+  RxBool isFriendOnline = false.obs;
+  Rx<DateTime?> lastSeen = Rx<DateTime?>(null);
 
-
-  // void onInit() {
-  //   super.onInit();
-  //
-  //   chatId = Get.arguments['chatId'];
-  //   friendId = Get.arguments['friendId'];
-  //   friendName = Get.arguments['friendName'];
-  //
-  //   ensureChatExists(); // ✅ THIS IS THE KEY
-  //   listenToMessages();
-  // }
+  final TextEditingController messageController = TextEditingController();
 
   @override
   void onInit() {
     super.onInit();
 
-    final args = Get.arguments as Map<String, dynamic>?;
-
-    if (args == null ||
-        args['chatId'] == null ||
-        args['friendId'] == null) {
-      Get.back();
-      return;
-    }
-
+    final args = Get.arguments as Map<String, dynamic>;
     chatId = args['chatId'];
     friendId = args['friendId'];
-    friendName = args['friendName'] ?? 'User';
+    friendName = args['friendName'];
 
     ensureChatExists();
     listenToMessages();
+    listenToFriendStatus();
   }
 
+  /// ensure chat doc exists so it appears in Home
+  Future<void> ensureChatExists() async {
+    final uid = _auth.currentUser!.uid;
+    final ref = _firestore.collection('chats').doc(chatId);
 
+    final doc = await ref.get();
+    if (!doc.exists) {
+      await ref.set({
+        'chatId': chatId,
+        'participants': [uid, friendId],
+        'lastMessage': '',
+        'lastMessageSenderId': '',
+        'lastMessageTime': DateTime.now(),
+      });
+    }
+  }
+
+  /// listen to messages
   void listenToMessages() {
     _firestore
         .collection('chats')
@@ -66,54 +71,96 @@ class ChatController extends GetxController {
     });
   }
 
+  /// send message
   Future<void> sendMessage() async {
     final text = messageController.text.trim();
     if (text.isEmpty) return;
 
     final uid = _auth.currentUser!.uid;
 
-    final messageRef = _firestore
+    final ref = _firestore
         .collection('chats')
         .doc(chatId)
         .collection('messages')
         .doc();
 
-    await messageRef.set({
-      'messageId': messageRef.id,
+    // 1️⃣ save message
+    await ref.set({
+      'messageId': ref.id,
       'senderId': uid,
       'text': text,
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    // 🔥 THIS MAKES CHAT APPEAR IN HOME
+    // 2️⃣ update chat meta (for Home recent chat)
     await _firestore.collection('chats').doc(chatId).update({
       'lastMessage': text,
       'lastMessageSenderId': uid,
-      'lastMessageTime':  DateTime.now(),
+      'lastMessageTime': DateTime.now(),
     });
+
+    // 3️⃣ SEND NOTIFICATION 🔔 (🔥 THIS CREATES FIRESTORE STRUCTURE)
+    final userInfo = await _getCurrentUserInfo();
+
+    await NotificationService.sendNotification(
+      receiverId: friendId,
+      title: 'New message',
+      body: text,
+      senderName: userInfo['name']!,
+      senderPhoto: userInfo['photo']!,
+      type: 'message',
+    );
 
     messageController.clear();
   }
 
 
-  // <---------for chats i update here----->
-  Future<void> ensureChatExists() async {
+  /// delete message (only yours)
+  Future<void> deleteMessage(String messageId) async {
+    await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .doc(messageId)
+        .delete();
+  }
+
+  /// edit message
+  Future<void> editMessage(String messageId, String newText) async {
+    if (newText.isEmpty) return;
+
+    await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .doc(messageId)
+        .update({
+      'text': newText,
+      'editedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// online / offline listener
+  void listenToFriendStatus() {
+    _firestore.collection('users').doc(friendId).snapshots().listen((doc) {
+      final data = doc.data();
+      if (data == null) return;
+
+      isFriendOnline.value = data['isOnline'] ?? false;
+      lastSeen.value = data['lastSeen'] != null
+          ? (data['lastSeen'] as dynamic).toDate()
+          : null;
+    });
+  }
+
+  Future<Map<String, String>> _getCurrentUserInfo() async {
     final uid = _auth.currentUser!.uid;
+    final doc = await _firestore.collection('users').doc(uid).get();
 
-    final chatRef = _firestore.collection('chats').doc(chatId);
-
-    final doc = await chatRef.get();
-
-    if (!doc.exists) {
-      await chatRef.set({
-        'chatId': chatId,
-        'participants': [uid, friendId],
-        'lastMessage': '',
-        'lastMessageSenderId': '',
-        'lastMessageTime': FieldValue.serverTimestamp(),
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-    }
+    return {
+      'name': doc.data()?['displayName'] ?? 'User',
+      'photo': doc.data()?['photoURL'] ?? '',
+    };
   }
 
 }

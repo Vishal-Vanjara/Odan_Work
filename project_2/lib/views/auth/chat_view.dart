@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../controllers/chat_controller.dart';
+import '../../models/message_model.dart';
+import '../widgets/message_bubble.dart';
 
 class ChatView extends GetView<ChatController> {
   const ChatView({super.key});
@@ -12,25 +14,26 @@ class ChatView extends GetView<ChatController> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(controller.friendName),
-            const Text(
-              'Offline',
-              style: TextStyle(fontSize: 12),
-            ),
-          ],
+        leading: const BackButton(),
+        title: Obx(
+              () => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(controller.friendName),
+              Text(
+                controller.isFriendOnline.value
+                    ? 'Online'
+                    : controller.lastSeen.value != null
+                    ? 'Last seen ${controller.lastSeen.value}'
+                    : 'Offline',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
         ),
-        actions: const [
-          Icon(Icons.more_vert),
-        ],
       ),
-
       body: Column(
         children: [
-          // Messages
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
@@ -38,7 +41,7 @@ class ChatView extends GetView<ChatController> {
               }
 
               if (controller.messages.isEmpty) {
-                return _EmptyChatState();
+                return const _EmptyChatState();
               }
 
               return ListView.builder(
@@ -49,32 +52,46 @@ class ChatView extends GetView<ChatController> {
                   final msg = controller.messages[index];
                   final isMe = msg.senderId == uid;
 
-                  return Align(
-                    alignment:
-                    isMe ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isMe
-                            ? const Color(0xFF27B0A5)
-                            : Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        msg.text,
-                        style: TextStyle(
-                          color: isMe ? Colors.white : Colors.black,
-                        ),
-                      ),
-                    ),
+
+                  // gor bubble messsage
+                  return MessageBubble(
+                    message: msg,
+                    isMe: isMe,
+                    onLongPress: isMe
+                        ? () => _showOptions(context, msg)
+                        : null,
                   );
+
+
+                  // return GestureDetector(
+                  //   onLongPress: isMe
+                  //       ? () => _showOptions(context, msg)
+                  //       : null,
+                  //   child: Align(
+                  //     alignment:
+                  //     isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  //     child: Container(
+                  //       margin: const EdgeInsets.only(bottom: 8),
+                  //       padding: const EdgeInsets.all(12),
+                  //       decoration: BoxDecoration(
+                  //         color: isMe
+                  //             ? const Color(0xFF27B0A5)
+                  //             : Colors.grey.shade200,
+                  //         borderRadius: BorderRadius.circular(12),
+                  //       ),
+                  //       child: Text(
+                  //         msg.text,
+                  //         style: TextStyle(
+                  //           color: isMe ? Colors.white : Colors.black,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // );
                 },
               );
             }),
           ),
-
-          // Input
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -105,9 +122,66 @@ class ChatView extends GetView<ChatController> {
       ),
     );
   }
+
+  void _showOptions(BuildContext context, MessageModel msg) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.edit),
+            title: const Text('Edit'),
+            onTap: () {
+              Navigator.pop(context);
+              _editMessage(context, msg);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete),
+            title: const Text('Delete'),
+            onTap: () {
+              Navigator.pop(context);
+              controller.deleteMessage(msg.messageId);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editMessage(BuildContext context, MessageModel msg) {
+    final textController = TextEditingController(text: msg.text);
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Edit message'),
+        content: TextField(controller: textController),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              controller.editMessage(
+                msg.messageId,
+                textController.text.trim(),
+              );
+              Navigator.pop(context);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _EmptyChatState extends StatelessWidget {
+  const _EmptyChatState();
+
   @override
   Widget build(BuildContext context) {
     return Center(

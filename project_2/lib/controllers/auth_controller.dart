@@ -1,6 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import '../models/users_model.dart';
+import '../routes/app_routes.dart';
 import '../services/auth_services.dart';
+import '../utils/session_manager.dart';
 
 class AuthController extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -53,13 +58,23 @@ class AuthController extends ChangeNotifier {
   }
 
   /// LOGOUT
+  // Future<void> logout() async {
+  //   if (_user == null) return;
+  //
+  //   await _authService.logout();
+  //   _user = null;
+  //   notifyListeners();
+  // }
   Future<void> logout() async {
-    if (_user == null) return;
+    await FirebaseAuth.instance.signOut();
 
-    await _authService.logout();
-    _user = null;
-    notifyListeners();
+    // 🔥 clear all GetX memory
+    SessionManager.clearSession();
+
+    // 🔥 navigate cleanly
+    Get.offAllNamed(AppRoutes.login);
   }
+
 
   /// CHECK AUTH STATE (on app start)
   Future<void> checkAuth() async {
