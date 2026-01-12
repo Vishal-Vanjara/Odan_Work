@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:project_2/controllers/home_controller.dart';
 import '../models/message_model.dart';
 import '../services/notification_service.dart';
 
@@ -28,32 +29,60 @@ class ChatController extends GetxController {
   void onInit() {
     super.onInit();
 
-    final args = Get.arguments as Map<String, dynamic>;
+    final args = Get.arguments;
+    if(args == null || args is! Map<String,dynamic>){
+      // 🚨 prevents silent navigation failure
+      Get.back();
+      return;
+    }
+
+
     chatId = args['chatId'];
     friendId = args['friendId'];
     friendName = args['friendName'];
 
-    ensureChatExists();
+    // ensureChatExists();
     listenToMessages();
     listenToFriendStatus();
   }
 
-  /// ensure chat doc exists so it appears in Home
-  Future<void> ensureChatExists() async {
-    final uid = _auth.currentUser!.uid;
-    final ref = _firestore.collection('chats').doc(chatId);
+  // Future<void> createChatIfNotExists({
+  //   required String chatId,
+  //   required String friendId,
+  // }) async {
+  //   final uid = _auth.currentUser!.uid;
+  //   final ref = _firestore.collection('chats').doc(chatId);
+  //
+  //   final doc = await ref.get();
+  //   if (doc.exists) return;
+  //
+  //   await ref.set({
+  //     'chatId': chatId,
+  //     'participants': [uid, friendId],
+  //     'lastMessage': '',
+  //     'lastMessageSenderId': '',
+  //     'lastMessageTime': FieldValue.serverTimestamp(), // 🔥 IMPORTANT
+  //     'createdAt': FieldValue.serverTimestamp(),
+  //   });
+  // }
 
-    final doc = await ref.get();
-    if (!doc.exists) {
-      await ref.set({
-        'chatId': chatId,
-        'participants': [uid, friendId],
-        'lastMessage': '',
-        'lastMessageSenderId': '',
-        'lastMessageTime': DateTime.now(),
-      });
-    }
-  }
+
+  /// ensure chat doc exists so it appears in Home
+  // Future<void> ensureChatExists() async {
+  //   final uid = _auth.currentUser!.uid;
+  //   final ref = _firestore.collection('chats').doc(chatId);
+  //
+  //   final doc = await ref.get();
+  //   if (!doc.exists) {
+  //     await ref.set({
+  //       'chatId': chatId,
+  //       'participants': [uid, friendId],
+  //       'lastMessage': '',
+  //       'lastMessageSenderId': '',
+  //       'lastMessageTime': DateTime.now(),
+  //     });
+  //   }
+  // }
 
   /// listen to messages
   void listenToMessages() {
@@ -96,7 +125,8 @@ class ChatController extends GetxController {
     await _firestore.collection('chats').doc(chatId).update({
       'lastMessage': text,
       'lastMessageSenderId': uid,
-      'lastMessageTime': DateTime.now(),
+      // 'lastMessageTime': FieldValue.serverTimestamp(),
+      'lastMessageTime': Timestamp.now(),
     });
 
     // 3️⃣ SEND NOTIFICATION 🔔 (🔥 THIS CREATES FIRESTORE STRUCTURE)
@@ -112,6 +142,9 @@ class ChatController extends GetxController {
     );
 
     messageController.clear();
+
+    /// this is key line to refresh chat in controller
+    Get.find<HomeController>().refreshChats();
   }
 
 

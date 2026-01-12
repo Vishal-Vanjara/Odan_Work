@@ -13,11 +13,31 @@ class NotificationController extends GetxController {
 
   StreamSubscription? _sub;
 
+  RxInt unreadCount = 0.obs;
+
+
   @override
   void onInit() {
     super.onInit();
     _listenToNotifications();
+    listenToUnreadCount();
   }
+
+  void listenToUnreadCount() {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    _firestore
+        .collection('notifications')
+        .doc(user.uid)
+        .collection('items')
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+      unreadCount.value = snapshot.docs.length;
+    });
+  }
+
 
   void _listenToNotifications() {
     final user = _auth.currentUser;

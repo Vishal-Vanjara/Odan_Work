@@ -5,6 +5,7 @@ import 'package:project_2/views/auth/find_people_view.dart';
 import 'package:project_2/views/auth/friends_view.dart';
 import 'package:project_2/views/auth/home_view.dart';
 import 'package:project_2/views/auth/profile_view.dart';
+import '../../controllers/friend_request_controller.dart';
 import '../../controllers/friends_controller.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/main_controller.dart';
@@ -18,11 +19,12 @@ class MainView extends GetView<MainController> {
   @override
   Widget build(BuildContext context) {
 
-    // ✅ Register tab controllers ONCE
-    Get.put(HomeController(), permanent: true);
-    Get.put(FriendsController(), permanent: true);
-    Get.put(UserListController(), permanent: true);
-    Get.put(ProfileController(), permanent: true);
+    // // ✅ Register tab controllers ONCE
+    // Get.put(HomeController(), permanent: true);
+    // Get.put(FriendsController(), permanent: true);
+    // Get.put(UserListController(), permanent: true);
+    // Get.put(FriendRequestController(), permanent: true);
+    // Get.put(ProfileController(), permanent: true);
 
     return Scaffold(
       body: Obx(

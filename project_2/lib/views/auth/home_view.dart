@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/main_controller.dart';
+import '../../controllers/notification_controller.dart';
 import '../../routes/app_routes.dart';
 import '../widgets/chat_list_item.dart';
 
@@ -11,17 +12,61 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+
+    final notificationController =
+    Get.put(NotificationController(), permanent: true);
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Messages'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Get.toNamed(AppRoutes.notifications);
-            },
-            icon: const Icon(Icons.notifications_none),
-          ),
-        ],
+          actions: [
+
+
+    Stack(
+      clipBehavior: Clip.none,
+      children: [
+        IconButton(
+          onPressed: () {
+            Get.toNamed(AppRoutes.notifications);
+          },
+          icon: const Icon(Icons.notifications_none),
+        ),
+
+        /// 🔴 Notification bubble
+        Obx(() {
+          final count = notificationController.unreadCount.value;
+
+          if (count == 0) return const SizedBox();
+
+          return Positioned(
+            right: 6,
+            top: 6,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+              constraints: const BoxConstraints(
+                minWidth: 18,
+                minHeight: 18,
+              ),
+              child: Text(
+                count > 9 ? '9+' : count.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }),
+      ],
+    ),],
+
         // actions: const [
         //   // Icon(Icons.notifications_none),
         //   // SizedBox(width: 12),

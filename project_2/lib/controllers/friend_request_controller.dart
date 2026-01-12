@@ -13,6 +13,8 @@ class FriendRequestController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+
+
   RxBool isLoading = false.obs;
 
   Rx<FriendRequestTab> selectedTab =
@@ -39,12 +41,14 @@ class FriendRequestController extends GetxController {
     _firestore
         .collection('friend_requests')
         .where('toUserId', isEqualTo: uid)
+        .where('status', isEqualTo: 'pending')
         .snapshots()
         .listen((snapshot) async {
       List<FriendModel> list = [];
 
       for (var doc in snapshot.docs) {
         final data = doc.data();
+
         final userDoc = await _firestore
             .collection('users')
             .doc(data['fromUserId'])
@@ -57,8 +61,12 @@ class FriendRequestController extends GetxController {
       }
 
       receivedRequests.value = list;
+
+      // 🔍 TEMP DEBUG (remove later)
+      print('Pending received requests: ${list.length}');
     });
   }
+
 
   /// 📤 SENT requests
   void listenToSentRequests() {
@@ -67,6 +75,7 @@ class FriendRequestController extends GetxController {
     _firestore
         .collection('friend_requests')
         .where('fromUserId', isEqualTo: uid)
+        .where('status',isEqualTo: 'pending')
         .snapshots()
         .listen((snapshot) async {
       List<FriendModel> list = [];

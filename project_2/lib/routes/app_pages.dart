@@ -63,13 +63,14 @@ class AppPages {
       name: AppRoutes.main,
       page: () => const MainView(),
       binding: BindingsBuilder(() {
-        // Get.put(MainController(), permanent: true);
+        Get.put(MainController(), permanent: true);
 
         // 🔥 TAB CONTROLLERS (CREATE ONCE)
-        Get.put(HomeController());
-        Get.put(FriendsController(), );
-        Get.put(UserListController(), );
-        Get.put(ProfileController(),);
+        Get.put(HomeController(), permanent: true);
+        Get.put(FriendsController(), permanent: true);
+        Get.put(UserListController(), permanent: true );
+        Get.put(ProfileController(), permanent: true);
+        Get.put(FriendRequestController(), permanent: true);
       }),
     ),
 
