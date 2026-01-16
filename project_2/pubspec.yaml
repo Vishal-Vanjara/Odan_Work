@@ -40,6 +40,8 @@ dependencies:
   cloud_firestore: ^6.1.1
   google_fonts: ^6.3.3
   uuid: ^4.5.2
+  flutter_launcher_icons: ^0.14.4
+
 
 dev_dependencies:
   flutter_test:
@@ -52,10 +54,19 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/app_icon/logo_2.png"
+
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+
+
+
 flutter:
 
   # The following line ensures that the Material Icons font is
