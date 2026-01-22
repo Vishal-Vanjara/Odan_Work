@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:project_2/controllers/auth_controller.dart';
 import 'package:project_2/firebase_options.dart';
 import 'package:project_2/routes/app_pages.dart';
 import 'package:project_2/theme/app_theme.dart';
@@ -15,6 +16,7 @@ void main() async {
 
   // 🔥 GLOBAL CONTROLLER
   Get.put(MainController(), permanent: true);
+  Get.put(AuthController(),permanent: true);
 
   runApp(const MyApp());
 }
@@ -33,3 +35,33 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

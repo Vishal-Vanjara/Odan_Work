@@ -13,11 +13,8 @@ class AuthService {
     required String displayName,
   }) async {
     // 1️⃣ Create user in Firebase Auth
-    final UserCredential credential =
-    await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    final UserCredential credential = await _auth
+        .createUserWithEmailAndPassword(email: email, password: password);
 
     final User user = credential.user!;
 
@@ -33,10 +30,7 @@ class AuthService {
     );
 
     // 3️⃣ Save to Firestore
-    await _firestore
-        .collection('users')
-        .doc(user.uid)
-        .set(userModel.toMap());
+    await _firestore.collection('users').doc(user.uid).set(userModel.toMap());
 
     return userModel;
   }
@@ -47,8 +41,7 @@ class AuthService {
     required String password,
   }) async {
     // 1️⃣ Sign in
-    final UserCredential credential =
-    await _auth.signInWithEmailAndPassword(
+    final UserCredential credential = await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
@@ -62,8 +55,10 @@ class AuthService {
     });
 
     // 3️⃣ Fetch user from Firestore
-    final DocumentSnapshot doc =
-    await _firestore.collection('users').doc(uid).get();
+    final DocumentSnapshot doc = await _firestore
+        .collection('users')
+        .doc(uid)
+        .get();
 
     return UserModel.fromMap(doc.data() as Map<String, dynamic>);
   }
@@ -85,11 +80,63 @@ class AuthService {
     final User? user = _auth.currentUser;
     if (user == null) return null;
 
-    final DocumentSnapshot doc =
-    await _firestore.collection('users').doc(user.uid).get();
+    final DocumentSnapshot doc = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .get();
 
     if (!doc.exists) return null;
 
     return UserModel.fromMap(doc.data() as Map<String, dynamic>);
+  }
+
+  /// CHANGE PASSWORD (with re-authentication)
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final User? user = _auth.currentUser;
+
+    if (user == null || user.email == null) {
+      throw FirebaseAuthException(
+        code: 'no-user',
+        message: 'No authenticated user found',
+      );
+    }
+
+    /// Re-authebticate user with old  password
+    final AuthCredential credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: oldPassword,
+    );
+
+    await user.reauthenticateWithCredential(credential);
+
+    /// Update password
+    await user.updatePassword(newPassword);
+  }
+
+  /// Delete Account (with re-authentication)
+  Future<void> deleteAccount({required String password}) async {
+    final User? user = _auth.currentUser;
+
+    if (user == null || user.email == null) {
+      throw FirebaseAuthException(
+        code: 'no-user',
+        message: 'no authenticated user found',
+      );
+    }
+
+    /// Re-authenticate
+    final credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: password,
+    );
+
+    await user.reauthenticateWithCredential(credential);
+    /// Delete user data from firestore
+    await _firestore.collection('users').doc(user.uid).delete();
+    /// Delete firebase Auth account
+    await user.delete();
   }
 }

@@ -11,9 +11,11 @@ class AuthController extends ChangeNotifier {
   final AuthService _authService = AuthService();
 
   UserModel? _user;
+
   UserModel? get user => _user;
 
   bool _isLoading = false;
+
   bool get isLoading => _isLoading;
 
   void _setLoading(bool value) {
@@ -41,16 +43,10 @@ class AuthController extends ChangeNotifier {
   }
 
   /// LOGIN
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     try {
       _setLoading(true);
-      _user = await _authService.login(
-        email: email,
-        password: password,
-      );
+      _user = await _authService.login(email: email, password: password);
       notifyListeners();
     } finally {
       _setLoading(false);
@@ -58,13 +54,7 @@ class AuthController extends ChangeNotifier {
   }
 
   /// LOGOUT
-  // Future<void> logout() async {
-  //   if (_user == null) return;
-  //
-  //   await _authService.logout();
-  //   _user = null;
-  //   notifyListeners();
-  // }
+
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
 
@@ -75,10 +65,59 @@ class AuthController extends ChangeNotifier {
     Get.offAllNamed(AppRoutes.login);
   }
 
-
   /// CHECK AUTH STATE (on app start)
   Future<void> checkAuth() async {
     _user = await _authService.getCurrentUser();
     notifyListeners();
+  }
+
+  /// CHANGE PASSWORD(WITH OLD PASSWORD VERIFICATION)
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      _setLoading(true);
+
+      await _authService.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
+
+      Get.snackbar(
+        'Success',
+        'Password update successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Delete Account
+  Future<void> deleteAccount({required String password}) async {
+    try {
+      _setLoading(true);
+
+      await _authService.deleteAccount(password: password);
+
+      SessionManager.clearSession();
+
+      Get.offAllNamed(AppRoutes.login);
+
+      Get.snackbar(
+        'Account Deleted',
+        'your account has been deleted successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar(
+        'Error',
+        e.message ?? 'Account deletion failed',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      _setLoading(false);
+    }
   }
 }

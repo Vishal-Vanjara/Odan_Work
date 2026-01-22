@@ -126,8 +126,6 @@ class FriendsView extends StatelessWidget {
                         },
                       );
                     },
-
-
                     onRemove: () => controller.removeFriend(
                       controller.friends[index].friendId,
                     ),

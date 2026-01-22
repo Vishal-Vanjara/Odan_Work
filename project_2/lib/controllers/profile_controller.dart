@@ -19,7 +19,6 @@ class ProfileController extends GetxController {
   final Rx<DateTime?> joinedAt = Rx<DateTime?>(null);
 
   final displayNameController = TextEditingController();
-  final passwordController = TextEditingController();
 
   User? get user => _auth.currentUser;
 
@@ -68,51 +67,33 @@ class ProfileController extends GetxController {
     isLoading.value = false;
   }
 
-  /// 🔐 Change password
-  Future<void> changePassword() async {
-    if (user == null) return;
-
-    try {
-      isLoading.value = true;
-      await user!.updatePassword(passwordController.text.trim());
-      Get.back();
-      Get.snackbar('Success', 'Password updated successfully');
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
-    } finally {
-      isLoading.value = false;
-      passwordController.clear();
-    }
-  }
-
-  /// 🗑 Delete account
-  Future<void> deleteAccount() async {
-    if (user == null) return;
-
-    try {
-      isLoading.value = true;
-
-      await _firestore.collection('users').doc(user!.uid).delete();
-      await user!.delete();
-
-      Get.offAllNamed('/login');
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  // /// Delete account
+  // Future<void> deleteAccount() async {
+  //   if (user == null) return;
+  //
+  //   try {
+  //     isLoading.value = true;
+  //
+  //     await _firestore.collection('users').doc(user!.uid).delete();
+  //     await user!.delete();
+  //
+  //     Get.offAllNamed('/login');
+  //   } catch (e) {
+  //     Get.snackbar('Error', e.toString());
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   /// 🚪 Sign out
   Future<void> signOut() async {
-    // await _auth.signOut();
-    // Get.offAllNamed('/login');
+
     await FirebaseAuth.instance.signOut();
 
-    // 🔥 clear all GetX memory
+    /// 🔥 clear all GetX memory
     SessionManager.clearSession();
 
-    // 🔥 navigate cleanly
+    /// 🔥 navigate cleanly
     Get.offAllNamed(AppRoutes.login);
   }
 }

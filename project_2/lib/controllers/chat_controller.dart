@@ -44,45 +44,10 @@ class ChatController extends GetxController {
     // ensureChatExists();
     listenToMessages();
     listenToFriendStatus();
+    resetUnreadCount();
   }
 
-  // Future<void> createChatIfNotExists({
-  //   required String chatId,
-  //   required String friendId,
-  // }) async {
-  //   final uid = _auth.currentUser!.uid;
-  //   final ref = _firestore.collection('chats').doc(chatId);
-  //
-  //   final doc = await ref.get();
-  //   if (doc.exists) return;
-  //
-  //   await ref.set({
-  //     'chatId': chatId,
-  //     'participants': [uid, friendId],
-  //     'lastMessage': '',
-  //     'lastMessageSenderId': '',
-  //     'lastMessageTime': FieldValue.serverTimestamp(), // 🔥 IMPORTANT
-  //     'createdAt': FieldValue.serverTimestamp(),
-  //   });
-  // }
 
-
-  /// ensure chat doc exists so it appears in Home
-  // Future<void> ensureChatExists() async {
-  //   final uid = _auth.currentUser!.uid;
-  //   final ref = _firestore.collection('chats').doc(chatId);
-  //
-  //   final doc = await ref.get();
-  //   if (!doc.exists) {
-  //     await ref.set({
-  //       'chatId': chatId,
-  //       'participants': [uid, friendId],
-  //       'lastMessage': '',
-  //       'lastMessageSenderId': '',
-  //       'lastMessageTime': DateTime.now(),
-  //     });
-  //   }
-  // }
 
   /// listen to messages
   void listenToMessages() {
@@ -125,8 +90,10 @@ class ChatController extends GetxController {
     await _firestore.collection('chats').doc(chatId).update({
       'lastMessage': text,
       'lastMessageSenderId': uid,
-      // 'lastMessageTime': FieldValue.serverTimestamp(),
       'lastMessageTime': Timestamp.now(),
+
+      'unreadCounts.$friendId': FieldValue.increment(1),
+      'unreadCounts.$uid' : 0,
     });
 
     // 3️⃣ SEND NOTIFICATION 🔔 (🔥 THIS CREATES FIRESTORE STRUCTURE)
@@ -194,6 +161,13 @@ class ChatController extends GetxController {
       'name': doc.data()?['displayName'] ?? 'User',
       'photo': doc.data()?['photoURL'] ?? '',
     };
+  }
+
+  ///Reset unread count when chat opens
+  Future<void> resetUnreadCount() async{
+    final uid = _auth.currentUser !.uid;
+
+    await _firestore.collection('chats').doc(chatId).update({'unreadCounts.$uid' : 0 });
   }
 
 }

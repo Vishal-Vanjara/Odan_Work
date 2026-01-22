@@ -12,6 +12,7 @@ class HomeController extends GetxController {
   RxBool isLoading = false.obs;
   RxString searchQuery = ''.obs;
 
+  /// Holds the chat list shown on Home screen
   RxList<ChatModel> chats = <ChatModel>[].obs;
 
   StreamSubscription? _chatSub;
@@ -68,6 +69,7 @@ class HomeController extends GetxController {
               lastMessage: msg['text'] ?? '',
               lastMessageTime:
               (msg['timestamp'] as Timestamp).toDate(),
+              unreadCounts: baseChat.unreadCounts,
             ),
           );
         } else {
@@ -80,56 +82,6 @@ class HomeController extends GetxController {
         }
       }
 
-
-
-      // for (var doc in snapshot.docs) {
-      //   final chat = ChatModel.fromMap(doc.data());
-      //
-      //   // 🔹 find the other user
-      //   final otherUserId =
-      //   chat.participants.firstWhere((id) => id != uid);
-      //
-      //   // 🔹 fetch other user's profile
-      //   final userDoc =
-      //   await _firestore.collection('users').doc(otherUserId).get();
-      //
-      //   chat.otherUserName =
-      //       userDoc.data()?['displayName'] ?? 'User';
-      //   chat.otherUserPhoto =
-      //       userDoc.data()?['photoURL'] ?? '';
-      //
-      //   // 🔥 FETCH LATEST MESSAGE (THIS FIXES YOUR BUG)
-      //   final msgSnap = await _firestore
-      //       .collection('chats')
-      //       .doc(chat.chatId)
-      //       .collection('messages')
-      //       .orderBy('timestamp', descending: true)
-      //       .limit(1)
-      //       .get();
-      //
-      //   if (msgSnap.docs.isNotEmpty) {
-      //     final msg = msgSnap.docs.first.data();
-      //     // chat.lastMessage = msg['text'] ?? '';
-      //     // chat.lastMessageTime =
-      //     //     (msg['timestamp'] as Timestamp?)?.toDate();
-      //     final updatedChat = chat.copyWith(
-      //       lastMessage: msg['text'] ?? '',
-      //       lastMessageTime:
-      //       (msg['timestamp'] as Timestamp?)?.toDate(),
-      //     );
-      //
-      //     tempChats.add(updatedChat);
-      //     continue;
-      //
-      //   } else {
-      //     chat.lastMessage = '';
-      //     chat.lastMessageTime = null;
-      //   }
-      //
-      //   tempChats.add(chat);
-      // }
-
-      // 🔥 SORT LOCALLY BY REAL LAST MESSAGE TIME
       tempChats.sort(
             (a, b) => (b.lastMessageTime ?? DateTime(0))
             .compareTo(a.lastMessageTime ?? DateTime(0)),

@@ -61,33 +61,6 @@ class ChatView extends GetView<ChatController> {
                         ? () => _showOptions(context, msg)
                         : null,
                   );
-
-
-                  // return GestureDetector(
-                  //   onLongPress: isMe
-                  //       ? () => _showOptions(context, msg)
-                  //       : null,
-                  //   child: Align(
-                  //     alignment:
-                  //     isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  //     child: Container(
-                  //       margin: const EdgeInsets.only(bottom: 8),
-                  //       padding: const EdgeInsets.all(12),
-                  //       decoration: BoxDecoration(
-                  //         color: isMe
-                  //             ? const Color(0xFF27B0A5)
-                  //             : Colors.grey.shade200,
-                  //         borderRadius: BorderRadius.circular(12),
-                  //       ),
-                  //       child: Text(
-                  //         msg.text,
-                  //         style: TextStyle(
-                  //           color: isMe ? Colors.white : Colors.black,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // );
                 },
               );
             }),

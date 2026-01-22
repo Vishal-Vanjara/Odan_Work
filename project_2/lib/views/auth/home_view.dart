@@ -22,56 +22,50 @@ class HomeView extends GetView<HomeController> {
         title: const Text('Messages'),
           actions: [
 
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Get.toNamed(AppRoutes.notifications);
+                      },
+                      icon: const Icon(Icons.notifications_none),
+                    ),
 
-    Stack(
-      clipBehavior: Clip.none,
-      children: [
-        IconButton(
-          onPressed: () {
-            Get.toNamed(AppRoutes.notifications);
-          },
-          icon: const Icon(Icons.notifications_none),
-        ),
+                    /// 🔴 Notification bubble
+                    Obx(() {
+                      final count = notificationController.unreadCount.value;
 
-        /// 🔴 Notification bubble
-        Obx(() {
-          final count = notificationController.unreadCount.value;
+                      if (count == 0) return const SizedBox();
 
-          if (count == 0) return const SizedBox();
-
-          return Positioned(
-            right: 6,
-            top: 6,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-              ),
-              constraints: const BoxConstraints(
-                minWidth: 18,
-                minHeight: 18,
-              ),
-              child: Text(
-                count > 9 ? '9+' : count.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                      return Positioned(
+                        right: 6,
+                        top: 6,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          child: Text(
+                            count > 9 ? '9+' : count.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          );
-        }),
-      ],
-    ),],
-
-        // actions: const [
-        //   // Icon(Icons.notifications_none),
-        //   // SizedBox(width: 12),
-        //
-        // ],
+          ],
       ),
 
       floatingActionButton: FloatingActionButton.extended(

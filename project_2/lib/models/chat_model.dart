@@ -7,6 +7,7 @@ class ChatModel {
   final String lastMessageSenderId;
   final DateTime lastMessageTime;
   final List<String> participants;
+  final Map<String, int > unreadCounts;
 
   // 🔥 UI-only fields (NOT stored in Firestore)
   final String? otherUserName;
@@ -18,6 +19,7 @@ class ChatModel {
     required this.lastMessageSenderId,
     required this.lastMessageTime,
     required this.participants,
+    required this.unreadCounts,
     this.otherUserName,
     this.otherUserPhoto,
   });
@@ -32,6 +34,8 @@ class ChatModel {
           ? (map['lastMessageTime'] as Timestamp).toDate()
           : DateTime.now(),
       participants: List<String>.from(map['participants'] ?? []),
+
+      unreadCounts: Map<String, int>.from(map['unreadCounts'] ?? {}),
     );
   }
 
@@ -43,6 +47,7 @@ class ChatModel {
       'lastMessageSenderId': lastMessageSenderId,
       'lastMessageTime': Timestamp.fromDate(lastMessageTime),
       'participants': participants,
+      'unredCounts': unreadCounts,
     };
   }
 
@@ -52,6 +57,7 @@ class ChatModel {
     DateTime? lastMessageTime,
     String? otherUserName,
     String? otherUserPhoto,
+    Map<String,int>? unreadCounts,
   }) {
     return ChatModel(
       chatId: chatId,
@@ -61,6 +67,7 @@ class ChatModel {
       lastMessageTime: lastMessageTime ?? this.lastMessageTime,
       otherUserName: otherUserName ?? this.otherUserName,
       otherUserPhoto: otherUserPhoto ?? this.otherUserPhoto,
+      unreadCounts: unreadCounts ?? this.unreadCounts,
     );
   }
 }
